@@ -17,14 +17,25 @@ CODE_CHARACTERS = string.ascii_letters + string.digits
 DEFAULT_EXPIRY_DAYS = 7
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+def is_valid_url(url):
+    """Basic check that the URL starts with http:// or https:// and has some content after it."""
+    return url.startswith("http://") or url.startswith("https://")
+
 
 def load_urls():
-    """Load stored URLs from the JSON file, or return an empty dict if none exists."""
+    """Load stored URLs from the JSON file, or return an empty dict if none exists, is empty, or is corrupted."""
     if not os.path.exists(DATA_FILE):
         return {}
 
     with open(DATA_FILE, "r") as file:
-        return json.load(file)
+        content = file.read().strip()
+        if not content:
+            return {}
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            print(f"Warning: {DATA_FILE} was empty or corrupted. Starting with an empty URL list.")
+            return {}
 
 
 def save_urls(url_map):
@@ -49,6 +60,10 @@ def generate_short_code():
 
 def add_url(url, expiry_days=DEFAULT_EXPIRY_DAYS):
     """Generate a unique short code for the given URL, store it with an expiry, and save."""
+    if not is_valid_url(url):
+        print("Error: please enter a valid URL starting with http:// or https://")
+        return
+    
     short_code = generate_short_code()
     expires_at = datetime.now() + timedelta(days=expiry_days)
     url_map[short_code] = {
