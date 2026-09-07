@@ -1,17 +1,33 @@
 """
 Simple URL Shortener
 
-Commit 1: Basic menu-driven structure with in-memory URL storage.
+Commit 2: Generate unique short codes for each stored URL.
 """
+
+import random
+import string
 
 # In-memory storage: maps short_code -> original_url
 url_map = {}
 
+CODE_LENGTH = 6
+CODE_CHARACTERS = string.ascii_letters + string.digits
+
+
+def generate_short_code():
+    """Generate a random alphanumeric short code that isn't already in use."""
+    while True:
+        code = "".join(random.choice(CODE_CHARACTERS) for _ in range(CODE_LENGTH))
+        if code not in url_map:
+            return code
+
 
 def add_url(url):
-    """Temporarily store a URL (short code generation comes in a later commit)."""
-    url_map[url] = url
-    print(f"Stored URL: {url}")
+    """Generate a unique short code for the given URL and store the mapping."""
+    short_code = generate_short_code()
+    url_map[short_code] = url
+    print(f"Short code created: {short_code}")
+    print(f"  {url} -> {short_code}")
 
 
 def view_urls():
