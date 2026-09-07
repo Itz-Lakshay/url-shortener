@@ -1,7 +1,7 @@
 """
 Simple URL Shortener
 
-Commit 4: Add persistent storage using a JSON file.
+Commit 5: Add a click counter for each short URL.
 """
 
 import json
@@ -30,7 +30,8 @@ def save_urls(url_map):
         json.dump(url_map, file, indent=2)
 
 
-# In-memory storage, loaded from disk at startup: maps short_code -> original_url
+# In-memory storage, loaded from disk at startup.
+# Each entry looks like: short_code -> {"url": "...", "clicks": 0}
 url_map = load_urls()
 
 
@@ -45,30 +46,34 @@ def generate_short_code():
 def add_url(url):
     """Generate a unique short code for the given URL, store it, and save to disk."""
     short_code = generate_short_code()
-    url_map[short_code] = url
+    url_map[short_code] = {"url": url, "clicks": 0}
     save_urls(url_map)
     print(f"Short code created: {short_code}")
     print(f"  {url} -> {short_code}")
 
 
 def open_short_url(short_code):
-    """Look up a short code and print the original URL, or an error if not found."""
-    original_url = url_map.get(short_code)
-    if original_url is None:
+    """Look up a short code, increment its click count, and print the original URL."""
+    entry = url_map.get(short_code)
+    if entry is None:
         print(f"Error: short code '{short_code}' not found.")
-    else:
-        print(f"Original URL: {original_url}")
+        return
+
+    entry["clicks"] += 1
+    save_urls(url_map)
+    print(f"Original URL: {entry['url']}")
+    print(f"Total clicks: {entry['clicks']}")
 
 
 def view_urls():
-    """Display all stored URLs."""
+    """Display all stored URLs along with their click counts."""
     if not url_map:
         print("No URLs stored yet.")
         return
 
     print("\nStored URLs:")
-    for short_code, original_url in url_map.items():
-        print(f"  {short_code} -> {original_url}")
+    for short_code, entry in url_map.items():
+        print(f"  {short_code} -> {entry['url']} (clicks: {entry['clicks']})")
 
 
 def main():
