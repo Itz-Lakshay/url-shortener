@@ -1,17 +1,37 @@
 """
 Simple URL Shortener
 
-Commit 3: Look up a short code to retrieve the original URL.
+Commit 4: Add persistent storage using a JSON file.
 """
 
+import json
+import os
 import random
 import string
 
-# In-memory storage: maps short_code -> original_url
-url_map = {}
+DATA_FILE = "urls.json"
 
 CODE_LENGTH = 6
 CODE_CHARACTERS = string.ascii_letters + string.digits
+
+
+def load_urls():
+    """Load stored URLs from the JSON file, or return an empty dict if none exists."""
+    if not os.path.exists(DATA_FILE):
+        return {}
+
+    with open(DATA_FILE, "r") as file:
+        return json.load(file)
+
+
+def save_urls(url_map):
+    """Write the current URL mapping to the JSON file."""
+    with open(DATA_FILE, "w") as file:
+        json.dump(url_map, file, indent=2)
+
+
+# In-memory storage, loaded from disk at startup: maps short_code -> original_url
+url_map = load_urls()
 
 
 def generate_short_code():
@@ -23,9 +43,10 @@ def generate_short_code():
 
 
 def add_url(url):
-    """Generate a unique short code for the given URL and store the mapping."""
+    """Generate a unique short code for the given URL, store it, and save to disk."""
     short_code = generate_short_code()
     url_map[short_code] = url
+    save_urls(url_map)
     print(f"Short code created: {short_code}")
     print(f"  {url} -> {short_code}")
 
