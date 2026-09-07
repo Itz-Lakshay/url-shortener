@@ -1,7 +1,7 @@
 """
 Simple URL Shortener
 
-Commit 2: Generate unique short codes for each stored URL.
+Commit 3: Look up a short code to retrieve the original URL.
 """
 
 import random
@@ -30,6 +30,15 @@ def add_url(url):
     print(f"  {url} -> {short_code}")
 
 
+def open_short_url(short_code):
+    """Look up a short code and print the original URL, or an error if not found."""
+    original_url = url_map.get(short_code)
+    if original_url is None:
+        print(f"Error: short code '{short_code}' not found.")
+    else:
+        print(f"Original URL: {original_url}")
+
+
 def view_urls():
     """Display all stored URLs."""
     if not url_map:
@@ -43,15 +52,18 @@ def view_urls():
 
 def main():
     while True:
-        print("\n1. Add URL | 2. View URLs | 3. Exit")
+        print("\n1. Shorten URL | 2. Open Short URL | 3. View URLs | 4. Exit")
         choice = input("Choice: ").strip()
 
         if choice == "1":
             url = input("Enter URL: ").strip()
             add_url(url)
         elif choice == "2":
-            view_urls()
+            short_code = input("Enter Short Code: ").strip()
+            open_short_url(short_code)
         elif choice == "3":
+            view_urls()
+        elif choice == "4":
             print("Goodbye!")
             break
         else:
