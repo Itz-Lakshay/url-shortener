@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="text" name="url" placeholder="https://example.com/long/url" size="50" required>
+        <button type="submit">Shorten</button>
+    </form>
+
+    <h2>Stored URLs</h2>
+    {% if not url_map %}
+        <p>No URLs stored yet.</p>
+    {% else %}
+        <table border="1" cellpadding="6">
+            <tr>
+                <th>Short Code</th>
+                <th>Original URL</th>
+                <th>Clicks</th>
+                <th>Status</th>
+            </tr>
+            {% for code, entry in url_map.items() %}
+            <tr>
+                <td><a href="/{{ code }}">{{ code }}</a></td>
+                <td>{{ entry.url }}</td>
+                <td>{{ entry.clicks }}</td>
+                <td>{{ "EXPIRED" if is_expired(entry) else "expires " + entry.expires_at }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</body>
+</html>
